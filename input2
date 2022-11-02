@@ -1,0 +1,16 @@
+7
+S -> AX
+S -> AB
+R -> AX
+X -> RB
+R -> AB
+A -> a
+B -> b
+aaabbb
+aababb
+aabb
+aaabb
+aabba
+abb
+ab
+*

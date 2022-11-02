@@ -1,0 +1,32 @@
+20
+S -> a
+S -> b
+S -> c
+S -> RX
+S -> RA
+S -> RR
+S -> OY
+R -> a
+R -> b
+R -> c
+R -> RX
+X -> MR
+R -> RA
+R -> RR
+R -> OY
+Y -> RC
+O -> (
+C -> )
+A -> *
+M -> +
+abba
+(a+b)*
+(a+)*
+(a+b)*cac(a+b)*
+a*b*a
+*a
+a*
+abba+*
+abca+b*
+a(b+c)
+*
