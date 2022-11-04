@@ -3,54 +3,24 @@
 #include<map>
 #include<vector>
 #include<sstream>
+#include<algorithm>
 
 using namespace std;
 
 void add(string* k, string *v, map<string, string> *m, map<string, string> *r){ 
-  // Verificar se já existe uma produção
   string value = *v, key = *k;
-  if(!m->count(key)){
-    // Caso não, por exemplo X -> AS, insere {"AS", "X"}
-    m->insert({key, value});
-  }else{
-    // O map replace guarda produções que podem ser
-    // simplificadas em outras, caso ao final das 
-    // declarações possuem a mesma função.
-    r->insert({value, (*m)[key]});
-  }
-}
-
-map<string, string> rm_redundancies(map<string, string> *m, map<string, string> *r){
-  // Substituindo as redundancias
-  // Como R = S dos exemplos
-  map<string, string> mfinal;
-  for (const auto x:  *m) {
-    for (const auto y: *r){
-      // [RR] = X
-      if(x.first[0] == y.first[0] and x.first[1] == y.first[0]){
-        mfinal.insert({y.second+y.second, x.second});
-      }
-      // [RY] = X
-      else if(x.first[0] == y.first[0] ) {
-        mfinal.insert({y.second + x.first[1], x.second});
-      }
-      // [YR] = X
-      else if(x.first[1] == y.first[0] ) {
-        mfinal.insert({x.first[0] + y.second, x.second});
-      }else{
-        mfinal.insert({x.first, x.second});
-      }
-    }
-  }
-  return mfinal;
+  m->insert({key, value});
 }
 
 // Divide a string em pares, ex: AA|AB|AA
 // caso não encontre nenhuma produção, os pares mudam
 // ex: A|AA|BA|A
-bool reduce(string str, map<string, string> m, queue<string> *dt){
+bool reduce(string str, map<string, string> m, queue<string> *dt, vector<string> *S){
+  vector<string>::iterator it;
   //cout << str << endl;
-  if(str == "S"){
+  it = find(S->begin(), S->end(), str);
+  if(str.size() == 2 and it != S->end()){
+    dt->push("S");
     dt->push(str);
     return true;
   }
@@ -78,7 +48,7 @@ bool reduce(string str, map<string, string> m, queue<string> *dt){
       for(int j = i+2; j < str.size(); j++)
         ss << str[j];
       //cout << ss.str() << endl;
-      result = reduce(ss.str(), m, dt);
+      result = reduce(ss.str(), m, dt, S);
       if(result) {
         dt->push(str);
         return result;
@@ -108,7 +78,7 @@ bool reduce(string str, map<string, string> m, queue<string> *dt){
       for(int j = i+2; j < str.size(); j++)
         ss << str[j];
       //cout << ss.str() << endl;
-      result = reduce(ss.str(), m, dt);
+      result = reduce(ss.str(), m, dt, S);
       if(result) {
         dt->push(str);
         return result;
@@ -124,6 +94,7 @@ bool reduce(string str, map<string, string> m, queue<string> *dt){
 int main(){
   map<string, string> m, replace; 
   queue<string> derivation_tree; 
+  vector<string> S;
   string input, aux;
   int P;
   cin >> P;
@@ -131,10 +102,10 @@ int main(){
   while(P--){
     string a,arrow,c;
     cin >> a >> arrow >> c;
-    add(&c, &a, &m, &replace);
+    if(a == "S") S.push_back(c);
+    else add(&c, &a, &m, &replace);
   }
   // Removendo redundancias das produções
-  m = rm_redundancies(&m, &replace);
   while(cin >> input and input != "*"){
     aux = input;
     for(int i = 0; i < input.size(); i++)
@@ -146,7 +117,7 @@ int main(){
     // Verifica a partir do maps se é possível realizar
     // a decomposição
     cout << aux;
-    if(reduce(input, m, &derivation_tree)){
+    if(reduce(input, m, &derivation_tree, &S)){
       derivation_tree.push(aux);
       cout << ": SIM\n";
       while(!derivation_tree.empty()){
